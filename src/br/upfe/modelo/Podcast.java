@@ -1,16 +1,18 @@
 package br.upfe.modelo;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
 public class Podcast {
 	private String title;
 	private String link;
+	private String description;
 	private Image image;
 	private String language;
 	private String copyright;
 	private String docs;
-	private Date lastBuildDate;
+	private Instant lastBuildDate;
 	private String generator;
 	private String webMaster;
 	private String atom;
@@ -18,11 +20,12 @@ public class Podcast {
 	
 	
 	
-	public Podcast(String title, String link, Image image, String language, String copyright, String docs,
-			Date lastBuildDate, String generator, String webMaster, String atom, List<Item> itens) {
+	public Podcast(String title, String link, String description, Image image, String language, String copyright, String docs,
+			Instant lastBuildDate, String generator, String webMaster, String atom, List<Item> itens) {
 		super();
 		this.title = title;
 		this.link = link;
+		this.description = description;
 		this.image = image;
 		this.language = language;
 		this.copyright = copyright;
@@ -69,10 +72,10 @@ public class Podcast {
 	public void setDocs(String docs) {
 		this.docs = docs;
 	}
-	public Date getLastBuildDate() {
+	public Instant getLastBuildDate() {
 		return lastBuildDate;
 	}
-	public void setLastBuildDate(Date lastBuildDate) {
+	public void setLastBuildDate(Instant lastBuildDate) {
 		this.lastBuildDate = lastBuildDate;
 	}
 	public String getGenerator() {
@@ -99,4 +102,20 @@ public class Podcast {
 	public void setItens(List<Item> itens) {
 		this.itens = itens;
 	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	@Override
+	public String toString() {
+		return "Podcast [title=" + title + ", link=" + link + ", description=" + description + ", image=" + image
+				+ ", language=" + language + ", copyright=" + copyright + ", docs=" + docs + ", lastBuildDate="
+				+ lastBuildDate + ", generator=" + generator + ", webMaster=" + webMaster + ", atom=" + atom
+				+ ", itens=" + itens + "]";
+	}
+	
+	
+	
 }

@@ -1,17 +1,18 @@
 package br.upfe.modelo;
 
+import java.time.Instant;
 import java.util.Date;
 
 public class Item {
 	private String title;
 	private String description;
-	private Date pubDate;
+	private Instant pubDate;
 	private String enclosure;
 	private String guid;
 	
 	
 	
-	public Item(String title, String description, Date pubDate, String enclosure, String guid) {
+	public Item(String title, String description, Instant pubDate, String enclosure, String guid) {
 		super();
 		this.title = title;
 		this.description = description;
@@ -31,10 +32,10 @@ public class Item {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public Date getPubDate() {
+	public Instant getPubDate() {
 		return pubDate;
 	}
-	public void setPubDate(Date pubDate) {
+	public void setPubDate(Instant pubDate) {
 		this.pubDate = pubDate;
 	}
 	public String getEnclosure() {
