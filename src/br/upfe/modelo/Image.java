@@ -31,4 +31,10 @@ public class Image {
 	public void setLink(String link) {
 		this.link = link;
 	}
+	@Override
+	public String toString() {
+		return "Image [url=" + url + ", title=" + title + ", link=" + link + "]";
+	}
+	
+	
 }

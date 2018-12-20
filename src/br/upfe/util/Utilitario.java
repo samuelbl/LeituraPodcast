@@ -4,15 +4,21 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 
@@ -46,8 +52,17 @@ public class Utilitario {
 		return Optional.of(xpath.evaluate(string, document));
 	}
 	
-	public Optional<String> buscaNoXMLList(String string) throws XPathExpressionException {
-		return Optional.of(xpath.evaluate(string, document));
+	public Optional<String> buscaNoXML(String string, Node node) throws XPathExpressionException {
+		return Optional.of(xpath.evaluate(string, node));
 	}
+	
+	public Stream<Node> buscaNoXMLList(String string) throws XPathExpressionException {
+		NodeList nodeList = (NodeList) xpath.evaluate(string, document, XPathConstants.NODESET);
+		Stream<Node> nodeStream = IntStream.range(0, nodeList.getLength())
+                .mapToObj(nodeList::item);
+		return nodeStream;
+	}
+
+	
 	
 }

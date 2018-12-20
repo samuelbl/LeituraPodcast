@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.stream.Stream;
 
 import javax.management.InstanceNotFoundException;
 import javax.swing.text.DateFormatter;
@@ -20,10 +21,12 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import br.upfe.modelo.Image;
@@ -70,6 +73,12 @@ public class Principal {
 		Optional<String> generator = null;
 		Optional<String> webMaster = null;
 		Optional<String> atom = null;
+		Optional<String> itemTitle = null;
+		Optional<String> itemDescription = null; 
+		Optional<String> itemPubDate = null;
+		Optional<String> itemEnclosure = null;
+		Optional<String> itemGuid = null;
+		
 		List<Item> itensPod = new ArrayList<Item>();
 		
 
@@ -86,11 +95,23 @@ public class Principal {
 			docs = util.buscaNoXML("rss/channel/docs");
 			lastBuildDateString = util.buscaNoXML("rss/channel/lastBuildDate");
 			//Converte data utilizando lambda
-		    lastBuildDate = DateTimeFormatter.RFC_1123_DATE_TIME.parse(lastBuildDateString.orElse("Sun, 01 Jan 0000 00:00:00 GMT"),Instant::from);
+		    lastBuildDate = converteStringToInstant(lastBuildDateString);
 			generator = util.buscaNoXML("rss/channel/generator");
 			webMaster = util.buscaNoXML("rss/channel/webMaster");
-			atom = util.buscaNoXML("rss/channel/atom:link/href");
 			
+			//Chama método para obter um Stream do Node de itens
+			Stream<Node> nodeStream =  util.buscaNoXMLList("//item");
+			//foreach do nodeStream, instanciando um novo objeto para cada item e adicionando no ArrayList
+			nodeStream.forEach((node)-> {
+				try {
+					Item item = new Item(util.buscaNoXML("title", node).orElse("NULO"), util.buscaNoXML("description", node).orElse("NULO"), converteStringToInstant(util.buscaNoXML("pubDate", node)), util.buscaNoXML("enclosure", node).orElse("NULO"), util.buscaNoXML("guid", node).orElse("NULO"));
+					itensPod.add(item);
+				} catch (XPathExpressionException e) {
+					e.printStackTrace();
+				}
+			});
+			
+
 		} catch (XPathExpressionException e) {
 			e.printStackTrace();
 		}
@@ -102,14 +123,27 @@ public class Principal {
 
 		Image image = new Image(imageUrl.orElse("NULO"), imageTitle.orElse("NULO"), imageLink.orElse("NULO"));
 		
-		Podcast podcast = new Podcast(title.orElse("NULO"), link.orElse("NULO"), description.orElse("NULO"), image, language.orElse("NULO"), copyright.orElse("NULO"), docs.orElse("NULO"), lastBuildDate, generator.orElse("NULO"), webMaster.orElse("NULO"), atom.orElse("NULO"), itensPod);
+		Podcast podcast = new Podcast(title.orElse("NULO"), link.orElse("NULO"), description.orElse("NULO"), image, language.orElse("NULO"), copyright.orElse("NULO"), docs.orElse("NULO"), lastBuildDate, generator.orElse("NULO"), webMaster.orElse("NULO"), itensPod);
 		
 		System.out.println(podcast);
+		System.out.println(podcast.getImage());
+		for (Item item : podcast.getItens()) {
+			System.out.println(item);
+		}
 		
 		
 		
 		
 
+	}
+
+	/**
+	 * Método utilizado para converter Optional<String> para Instant
+	 * @param dataString
+	 * @return Instant
+	 */
+	private static Instant converteStringToInstant(Optional<String> dataString) {
+		return DateTimeFormatter.RFC_1123_DATE_TIME.parse(dataString.orElse("Sun, 01 Jan 0000 00:00:00 GMT"),Instant::from);
 	}
 
 }

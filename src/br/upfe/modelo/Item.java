@@ -50,4 +50,11 @@ public class Item {
 	public void setGuid(String guid) {
 		this.guid = guid;
 	}
+	@Override
+	public String toString() {
+		return "Item [title=" + title + ", description=" + description + ", pubDate=" + pubDate + ", enclosure="
+				+ enclosure + ", guid=" + guid + "]";
+	}
+	
+	
 }

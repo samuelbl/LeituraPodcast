@@ -15,13 +15,12 @@ public class Podcast {
 	private Instant lastBuildDate;
 	private String generator;
 	private String webMaster;
-	private String atom;
 	private List<Item> itens;
 	
 	
 	
 	public Podcast(String title, String link, String description, Image image, String language, String copyright, String docs,
-			Instant lastBuildDate, String generator, String webMaster, String atom, List<Item> itens) {
+			Instant lastBuildDate, String generator, String webMaster, List<Item> itens) {
 		super();
 		this.title = title;
 		this.link = link;
@@ -33,7 +32,6 @@ public class Podcast {
 		this.lastBuildDate = lastBuildDate;
 		this.generator = generator;
 		this.webMaster = webMaster;
-		this.atom = atom;
 		this.itens = itens;
 	}
 	public String getTitle() {
@@ -90,12 +88,6 @@ public class Podcast {
 	public void setWebMaster(String webMaster) {
 		this.webMaster = webMaster;
 	}
-	public String getAtom() {
-		return atom;
-	}
-	public void setAtom(String atom) {
-		this.atom = atom;
-	}
 	public List<Item> getItens() {
 		return itens;
 	}
@@ -112,7 +104,7 @@ public class Podcast {
 	public String toString() {
 		return "Podcast [title=" + title + ", link=" + link + ", description=" + description + ", image=" + image
 				+ ", language=" + language + ", copyright=" + copyright + ", docs=" + docs + ", lastBuildDate="
-				+ lastBuildDate + ", generator=" + generator + ", webMaster=" + webMaster + ", atom=" + atom
+				+ lastBuildDate + ", generator=" + generator + ", webMaster=" + webMaster
 				+ ", itens=" + itens + "]";
 	}
 	
