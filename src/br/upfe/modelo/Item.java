@@ -1,5 +1,12 @@
 package br.upfe.modelo;
 
+
+/**
+ * Classe de modelo para dados de itens
+ * @author samuel, eliandro
+ *
+ */
+
 import java.time.Instant;
 import java.util.Date;
 
@@ -10,7 +17,9 @@ public class Item {
 	private String enclosure;
 	private String guid;
 	
-	
+	public Item(){
+		
+	}
 	
 	public Item(String title, String description, Instant pubDate, String enclosure, String guid) {
 		super();

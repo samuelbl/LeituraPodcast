@@ -1,5 +1,11 @@
 package br.upfe.modelo;
 
+/**
+ * Classe de modelo para dados da tag Image
+ * @author samuel, eliandro
+ *
+ */
+
 public class Image {
 	private String url;
 	private String title;

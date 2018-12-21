@@ -1,5 +1,12 @@
 package br.upfe.modelo;
 
+
+/**
+ * Classe de modelo com os dados do podcast
+ * @author samuel, eliandro
+ *
+ */
+
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
