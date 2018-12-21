@@ -33,6 +33,8 @@ public class Principal {
 	//Mensagens de erros a serem utilizadas pelo main
 	static final String NAO_ENCONTRADO = "Programa não encontrado";
 	static final String DOWNLOAD = "Falha no download";
+	private static Scanner sc;
+	private static Utilitario util;
 	
 	public static void main(String[] args) {
 		//Iniciar o scanner e solicita endereço do PodCast
@@ -130,8 +132,31 @@ public class Principal {
 		System.out.println("Título último programa: " + ultimoPrograma.getTitle()) ;
 		System.out.println("Data último programa: " + ultimoPrograma.getPubDate());
 		System.out.println("Link: " + ultimoPrograma.getEnclosure());
-		System.out.println("---------------------------------------------------------------");
-		
+		Boolean opc = true;
+		//Entra no menu principal
+		while (opc) {
+			menuPrincipal(podcast);
+			System.out.println("O sistema irá retornar ao menu prinicipal, deseja sair (s/N)");
+			String opcTexto = sc.next();
+			if (opcTexto.toUpperCase().equals('S')) {
+				opc = false;
+			}
+		}
+	}
+
+	/**
+	 * Método reponsável pelo menu da aplicação
+	 * @param sc
+	 * @param util
+	 * @param podcast
+	 * @param sizeList
+	 */
+	private static void menuPrincipal(Podcast podcast) {
+		sc = new Scanner(System.in);
+		util = new Utilitario();
+		System.out.println("-----------------------------------------------------------------------------");
+		System.out.println("---------------------Menu Principal------------------------------------------");
+		System.out.println("-----------------------------------------------------------------------------");
 		System.out.println("Para download de episódios, digite 'D'");
 		System.out.print("ou 'B' para buscar episódios: ");
 		String opc = sc.next().toUpperCase();
@@ -139,44 +164,56 @@ public class Principal {
 			System.out.println("Favor informar somente 'B' ou 'D'");
 			opc = sc.next().toUpperCase();
 		}
-		if (opc.equals("D")){
-			//variável de controle para o while, com objetivo de repetir a pergunta em caso de exceção
-			boolean controle = false;
-			int qtEpisodiosDownload = 0;
-			//Questinamento da quantidade de arquivos e tratamentos
-			while (!controle) {
-				Scanner scanner = new Scanner(System.in);
-				try {
-					System.out.println("Quantos episódios deseja baixar: ");
-					qtEpisodiosDownload = scanner.nextInt();
-					if (qtEpisodiosDownload > sizeList) {
-						throw new ValorMaiorException(sizeList);
-					}
-					controle = true;
-				} catch (InputMismatchException e) {
-					System.out.println("Deve ser informado apenas números");
-				} catch (ValorMaiorException f) {
-					System.out.println(f.getMessage());
-				}
-				
-				
-			}
+		if (opc.equals("D")) {
+			menuDownloadEpisodios(podcast);
+		}
+		if (opc.equals("B")) {
+			menuBuscaEpisodios(podcast);
+		}
+	}
 
-			System.out.println("Qual diretório deseja efetuar o download? Ex: /tmp");
-			String path = sc.next();
-			for (int i = 0; i < qtEpisodiosDownload; i++) {
-				Item prog = podcast.getItens().get(i);
-				new Thread(() -> util.baixarArquivos(prog.getEnclosure(), path, prog.getTitle())).start();
+	private static void menuBuscaEpisodios(Podcast podcast) {
+		
+		
+	}
+
+	/**
+	 * Método reponsável pelo menu e operações de downloads da aplicação
+	 * @param podcast
+	 * @param sc
+	 * @param util
+	 */
+	private static void menuDownloadEpisodios(Podcast podcast) {
+		sc = new Scanner(System.in);
+		util = new Utilitario();
+		// variável de controle para o while, com objetivo de repetir a
+		// pergunta em caso de exceção
+		boolean controle = false;
+		int qtEpisodiosDownload = 0;
+		// Questinamento da quantidade de arquivos e tratamentos
+		Scanner scanner;
+		while (!controle) {
+			scanner = new Scanner(System.in);
+			try {
+				System.out.println("Quantos episódios deseja baixar: ");
+				qtEpisodiosDownload = scanner.nextInt();
+				if (qtEpisodiosDownload > podcast.getItens().size()) {
+					throw new ValorMaiorException(podcast.getItens().size());
+				}
+				controle = true;
+			} catch (InputMismatchException e) {
+				System.out.println("Deve ser informado apenas números");
+			} catch (ValorMaiorException f) {
+				System.out.println(f.getMessage());
 			}
 		}
-		
-		
-		
 
-		
-		
-		
-
+		System.out.println("Qual diretório deseja efetuar o download? Ex: /tmp");
+		String path = sc.next();
+		for (int i = 0; i < qtEpisodiosDownload; i++) {
+			Item prog = podcast.getItens().get(i);
+			new Thread(() -> util.baixarArquivos(prog.getEnclosure(), path, prog.getTitle())).start();
+		}
 	}
 
 	/**
