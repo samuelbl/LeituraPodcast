@@ -2,14 +2,19 @@ package br.upfe.main;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.stream.Stream;
 
+import javax.swing.plaf.synth.SynthSeparatorUI;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -33,18 +38,15 @@ public class Principal {
 	//Mensagens de erros a serem utilizadas pelo main
 	static final String NAO_ENCONTRADO = "Programa não encontrado";
 	static final String DOWNLOAD = "Falha no download";
-	private static Scanner sc;
-	private static Utilitario util;
+	//instância da classe Scanner
+	private static Scanner sc = new Scanner(System.in);
+	//instância da classe utilitário para parse no XML e outros métodos utilitários
+	private static Utilitario util = Utilitario.getUtil();
 	
 	public static void main(String[] args) {
-		//Iniciar o scanner e solicita endereço do PodCast
-		@SuppressWarnings("resource")
-		Scanner sc = new Scanner(System.in);
-		System.out.println("Digite um endereço feed de podcast:");
+		//Solicita endereço do PodCast
+		System.out.println("Digite um endereço feed de podcast: Ex: http://leopoldomt.com/if710/fronteirasdaciencia.xml");
 		String url = sc.next();
-		
-		//Instancia da classe utilitário para parse no XML
-		Utilitario util = new Utilitario();
 		
 		//Efetua download do XML
 		try {
@@ -86,17 +88,17 @@ public class Principal {
 			lastBuildDateString = util.buscaNoXML("rss/channel/lastBuildDate");
 			
 			//Converte data utilizando lambda
-		    lastBuildDate = converteStringToInstant(lastBuildDateString);
+		    lastBuildDate = util.converteStringToInstant(lastBuildDateString);
 			generator = util.buscaNoXML("rss/channel/generator");
 			webMaster = util.buscaNoXML("rss/channel/webMaster");
 			
 			//Chama método para obter um Stream do Node de itens
 			Stream<Node> nodeStream =  util.buscaNoXMLList("//item");
 			
-			//Foreach do nodeStream, instanciando um novo objeto para cada item e adicionando no ArrayList
+			//Foreach do nodeStream, instanciando um novo objeto para cada item, adicionando no ArrayList e fazendo validações necessárias
 			nodeStream.forEach((node)-> {
 				try {
-					Item item = new Item(util.buscaNoXML("title", node).orElse("NULO"), util.buscaNoXML("description", node).orElse("NULO"), converteStringToInstant(util.buscaNoXML("pubDate", node)), util.buscaNoXML("enclosure/@url", node).orElse("NULO"), util.buscaNoXML("guid", node).orElse("NULO"));
+					Item item = new Item(util.buscaNoXML("title", node).orElse("NULO"), util.buscaNoXML("description", node).orElse("NULO"), util.converteStringToInstant(util.buscaNoXML("pubDate", node)), util.buscaNoXML("enclosure/@url", node).orElse("NULO"), util.buscaNoXML("guid", node).orElse("NULO"));
 					itensPod.add(item);
 				} catch (XPathExpressionException e) {
 					e.printStackTrace();
@@ -112,10 +114,6 @@ public class Principal {
 		}
 		
 		//inicia classes de modelos e armazena variáveis fazendo o parse do XML para o objeto podcast.
-		
-		
-		//http://leopoldomt.com/if710/fronteirasdaciencia.xml
-
 		Image image = new Image(imageUrl.orElse("NULO"), imageTitle.orElse("NULO"), imageLink.orElse("NULO"));
 		Podcast podcast = new Podcast(title.orElse("NULO"), link.orElse("NULO"), description.orElse("NULO"), image, language.orElse("NULO"), copyright.orElse("NULO"), docs.orElse("NULO"), lastBuildDate, generator.orElse("NULO"), webMaster.orElse("NULO"), itensPod);
 		int sizeList = podcast.getItens().size();
@@ -138,7 +136,8 @@ public class Principal {
 			menuPrincipal(podcast);
 			System.out.println("O sistema irá retornar ao menu prinicipal, deseja sair (s/N)");
 			String opcTexto = sc.next();
-			if (opcTexto.toUpperCase().equals('S')) {
+			//Efetua validação da opção selecionada, deixando que qualquer digito diferente de S seja considerado o padrão que é N
+			if (opcTexto.toUpperCase().equals("S")) {
 				opc = false;
 			}
 		}
@@ -146,14 +145,11 @@ public class Principal {
 
 	/**
 	 * Método reponsável pelo menu da aplicação
-	 * @param sc
-	 * @param util
 	 * @param podcast
-	 * @param sizeList
 	 */
 	private static void menuPrincipal(Podcast podcast) {
-		sc = new Scanner(System.in);
-		util = new Utilitario();
+		//sc = new Scanner(System.in);
+		//util = Utilitario.getUtil();
 		System.out.println("-----------------------------------------------------------------------------");
 		System.out.println("---------------------Menu Principal------------------------------------------");
 		System.out.println("-----------------------------------------------------------------------------");
@@ -172,19 +168,74 @@ public class Principal {
 		}
 	}
 
+	/**
+	 * Método reponsável pelo menu e operações de downloads da aplicação
+	 * @param podcast
+	 */
 	private static void menuBuscaEpisodios(Podcast podcast) {
-		
+		//sc = new Scanner(System.in);
+		//util = Utilitario.getUtil();
+		System.out.println("Qual a forma de busca? ");
+		System.out.println("Strings - digite 'S'");
+		System.out.println("Datas   - digite 'D'");
+		String opc = sc.next().toUpperCase();
+		while (!opc.equals("D") && !opc.equals("S")){
+			System.out.println("Favor informar somente 'S' ou 'D'");
+			opc = sc.next().toUpperCase();
+		}
+		buscaEpisodios(podcast, opc);
 		
 	}
 
 	/**
+	 * Método reponsável por buscar episódios
+	 * @param podcast
+	 */
+	private static void buscaEpisodios(Podcast podcast, String opc) {
+		util = new Utilitario();
+		//sc = new Scanner(System.in);
+		Stream<Item> streamItens = podcast.getItens().stream();
+		
+		//busca por String
+		if (opc.equals("S")){
+			System.out.print("Digite o episódio ou parte dele para efetuar a busca: ");
+			String busca = sc.next().toUpperCase();
+			//Utiliza o filter para buscar episódios que contenham a string informada
+			streamItens.filter(b -> b.getTitle().toUpperCase().contains(busca) 
+					|| b.getDescription().toUpperCase().contains(busca)).forEach(System.out::println);
+		}
+		
+		//busca por Data
+		else{			
+			String dtInicial = null;
+			String dtFinal = null;
+			while(!util.isValidFormat(dtInicial)){
+				System.out.print("Informa a data inicial para busca: dd/mm/yyyy ");
+				dtInicial = sc.next().toUpperCase();
+			}
+			while(!util.isValidFormat(dtFinal)){
+				System.out.print("Informa a data final para busca: dd/mm/yyyy");
+				dtFinal = sc.next().toUpperCase();
+			}
+			//converte as strings em instant
+			final Instant dtInicialFiltro = util.convertDateToInstant(dtInicial, true);
+			final Instant dtFinalFiltro = util.convertDateToInstant(dtFinal, false);
+				
+			//faz a procura pelo período dentro da stream de itens
+			streamItens.filter(b -> b.getPubDate().isAfter(dtInicialFiltro) 
+					&& b.getPubDate().isBefore(dtFinalFiltro))
+					.forEach(System.out::println);
+		}
+		
+	}
+
+
+	/**
 	 * Método reponsável pelo menu e operações de downloads da aplicação
 	 * @param podcast
-	 * @param sc
-	 * @param util
 	 */
 	private static void menuDownloadEpisodios(Podcast podcast) {
-		sc = new Scanner(System.in);
+		//sc = new Scanner(System.in);
 		util = new Utilitario();
 		// variável de controle para o while, com objetivo de repetir a
 		// pergunta em caso de exceção
@@ -216,13 +267,5 @@ public class Principal {
 		}
 	}
 
-	/**
-	 * Método utilizado para converter Optional<String> para Instant
-	 * @param dataString
-	 * @return Instant
-	 */
-	private static Instant converteStringToInstant(Optional<String> dataString) {
-		return DateTimeFormatter.RFC_1123_DATE_TIME.parse(dataString.orElse("Sun, 01 Jan 0000 00:00:00 GMT"),Instant::from);
-	}
-
+	
 }
